@@ -259,7 +259,7 @@ export default function EventModal({ event, onSave, onClose }: Props) {
                   <select
                     className="form-select"
                     value={formData.status}
-                    onChange={(e) => setFormData(prev => ({ ...prev, status: e.target.value as any }))}
+                    onChange={(e) => setFormData(prev => ({ ...prev, status: e.target.value as "published" | "draft" | "cancelled" | "completed" }))}
                   >
                     <option value="draft">Draft</option>
                     <option value="published">Published</option>

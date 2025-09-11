@@ -16,7 +16,7 @@ export default function EventsPage() {
   const [filter, setFilter] = useState<FilterType>("upcoming");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [user, setUser] = useState<any>(null);
+  const [user, setUser] = useState<{ id: string } | null>(null);
 
   // Load user and events
   useEffect(() => {
@@ -83,9 +83,6 @@ export default function EventsPage() {
     });
   };
 
-  const isUpcoming = (eventDate: string) => {
-    return new Date(eventDate) > new Date();
-  };
 
   if (loading) {
     return (
@@ -150,11 +147,16 @@ export default function EventsPage() {
               <div key={event.id} className="col-12 col-md-6 col-lg-4">
                 <div className="card h-100">
                   {event.image_url && (
-                    <img
-                      src={event.image_url}
+                    <div
                       className="card-img-top"
-                      alt={event.title}
-                      style={{ height: "200px", objectFit: "cover" }}
+                      style={{ 
+                        height: "200px", 
+                        backgroundImage: `url(${event.image_url})`,
+                        backgroundSize: "cover",
+                        backgroundPosition: "center"
+                      }}
+                      role="img"
+                      aria-label={event.title}
                     />
                   )}
                   <div className="card-body d-flex flex-column">
