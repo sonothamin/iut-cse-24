@@ -3,7 +3,7 @@
 import ProtectedRoute from "@/components/ProtectedRoute";
 import { useEffect, useMemo, useState } from "react";
 import { getSupabaseBrowserClient } from "@/lib/supabaseClient";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { FontAwesomeIcon } from "@fontawesome/react-fontawesome";
 import { faPlus, faTrash, faEye, faEyeSlash, faCalendar } from "@fortawesome/free-solid-svg-icons";
 import { Database } from "@/types/supabase";
 import EventModal from "@/components/EventModal";
