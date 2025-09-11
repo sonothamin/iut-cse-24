@@ -26,7 +26,7 @@ export default function EventModal({ event, onSave, onClose }: Props) {
     max_participants: "",
     registration_required: false,
     registration_deadline: "",
-    status: "published" as const,
+    status: "published" as "published" | "draft" | "cancelled" | "completed",
     resources: [] as string[],
     attachments: [] as string[]
   });
@@ -284,7 +284,7 @@ export default function EventModal({ event, onSave, onClose }: Props) {
                       className="btn btn-outline-primary"
                       onClick={addResource}
                     >
-                      <FontAwesomeIcon icon={faPlus} />
+                      <i className="fa-solid fa-plus"></i>
                     </button>
                   </div>
                   {formData.resources.map((resource, index) => (
@@ -295,7 +295,7 @@ export default function EventModal({ event, onSave, onClose }: Props) {
                         className="btn btn-sm btn-outline-danger"
                         onClick={() => removeResource(index)}
                       >
-                        <FontAwesomeIcon icon={faTrash} />
+                        <i className="fa-solid fa-trash"></i>
                       </button>
                     </div>
                   ))}
@@ -317,7 +317,7 @@ export default function EventModal({ event, onSave, onClose }: Props) {
                       className="btn btn-outline-primary"
                       onClick={addAttachment}
                     >
-                      <FontAwesomeIcon icon={faPlus} />
+                      <i className="fa-solid fa-plus"></i>
                     </button>
                   </div>
                   {formData.attachments.map((attachment, index) => (
@@ -328,7 +328,7 @@ export default function EventModal({ event, onSave, onClose }: Props) {
                         className="btn btn-sm btn-outline-danger"
                         onClick={() => removeAttachment(index)}
                       >
-                        <FontAwesomeIcon icon={faTrash} />
+                        <i className="fa-solid fa-trash"></i>
                       </button>
                     </div>
                   ))}
