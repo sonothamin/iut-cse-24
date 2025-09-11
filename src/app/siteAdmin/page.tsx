@@ -4,12 +4,15 @@ import ProtectedRoute from "@/components/ProtectedRoute";
 import { useEffect, useMemo, useState } from "react";
 import { getSupabaseBrowserClient } from "@/lib/supabaseClient";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faPlus, faTrash, faEye, faEyeSlash } from "@fortawesome/free-solid-svg-icons";
+import { faPlus, faTrash, faEye, faEyeSlash, faCalendar } from "@fortawesome/free-solid-svg-icons";
 import { Database } from "@/types/supabase";
+import EventModal from "@/components/EventModal";
 
 // --- Types ---
 type User = Database['public']['Tables']['users']['Row'];
 type Event = Database['public']['Tables']['events']['Row'];
+type EventInsert = Database['public']['Tables']['events']['Insert'];
+type EventUpdate = Database['public']['Tables']['events']['Update'];
 type Notice = Database['public']['Tables']['notices']['Row'];
 
 // --- Component ---
@@ -22,6 +25,9 @@ export default function AdminPage() {
   const [notices, setNotices] = useState<Notice[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [showEventModal, setShowEventModal] = useState(false);
+  const [editingEvent, setEditingEvent] = useState<Event | null>(null);
+  const [user, setUser] = useState<any>(null);
 
   // --- Load data ---
   useEffect(() => {
@@ -29,6 +35,10 @@ export default function AdminPage() {
       try {
         setLoading(true);
         setError(null);
+
+        // Get current user
+        const { data: { user: currentUser } } = await supabase.auth.getUser();
+        setUser(currentUser);
 
         const [usersResult, eventsResult, noticesResult] = await Promise.all([
           supabase.from("users").select("*").order("first_name"),
@@ -72,18 +82,36 @@ export default function AdminPage() {
     }
   }
 
+
   // --- Event actions ---
-  async function createEvent(title: string, date: string) {
+  async function createEvent(eventData: EventInsert) {
     try {
       const { data, error } = await supabase
         .from("events")
-        .insert({ title, event_date: new Date(date).toISOString() })
+        .insert({
+          ...eventData,
+          organizer_id: user?.id,
+          status: "published"
+        })
         .select()
         .single();
       if (error) throw new Error(error.message);
       if (data) setEvents((prev) => [data, ...prev]);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to create event");
+    }
+  }
+
+  async function updateEvent(eventData: EventUpdate, eventId: string) {
+    try {
+      const { error } = await supabase
+        .from("events")
+        .update({ ...eventData, updated_at: new Date().toISOString() })
+        .eq("id", eventId);
+      if (error) throw new Error(error.message);
+      setEvents((prev) => prev.map(e => e.id === eventId ? { ...e, ...eventData } as Event : e));
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Failed to update event");
     }
   }
 
@@ -96,6 +124,26 @@ export default function AdminPage() {
       setError(err instanceof Error ? err.message : "Failed to delete event");
     }
   }
+
+  const handleCreateEvent = () => {
+    setEditingEvent(null);
+    setShowEventModal(true);
+  };
+
+  const handleEditEvent = (event: Event) => {
+    setEditingEvent(event);
+    setShowEventModal(true);
+  };
+
+  const handleSaveEvent = async (eventData: EventInsert | EventUpdate) => {
+    if (editingEvent) {
+      await updateEvent(eventData as EventUpdate, editingEvent.id);
+    } else {
+      await createEvent(eventData as EventInsert);
+    }
+    setShowEventModal(false);
+    setEditingEvent(null);
+  };
 
   // --- Notice actions ---
   async function createNotice(title: string) {
@@ -233,39 +281,76 @@ export default function AdminPage() {
         {tab === "events" && (
           <div className="card">
             <div className="card-body">
-              <button
-                className="btn btn-primary btn-sm mb-3"
-                onClick={() => {
-                  const title = prompt("Event title?");
-                  if (!title?.trim()) return;
-                  
-                  const dateInput = prompt("Event date (YYYY-MM-DD)?");
-                  if (!dateInput?.trim()) return;
-                  
-                  const date = new Date(dateInput);
-                  if (isNaN(date.getTime())) {
-                    setError("Invalid date format. Please use YYYY-MM-DD");
-                    return;
-                  }
-                  
-                  createEvent(title.trim(), dateInput);
-                }}
-              >
-                <FontAwesomeIcon icon={faPlus} /> New Event
-              </button>
-              <ul className="list-group">
-                {events.map((e) => (
-                  <li key={e.id} className="list-group-item d-flex justify-content-between align-items-center">
-                    <div>
-                      <div className="fw-semibold">{e.title}</div>
-                      <div className="small text-muted">{new Date(e.event_date).toLocaleString()}</div>
+              <div className="d-flex justify-content-between align-items-center mb-3">
+                <h5 className="mb-0">Events Management</h5>
+                <button
+                  className="btn btn-primary btn-sm"
+                  onClick={handleCreateEvent}
+                >
+                  <FontAwesomeIcon icon={faPlus} className="me-2" />
+                  Create Event
+                </button>
+              </div>
+              
+              {events.length === 0 ? (
+                <div className="text-center py-4">
+                  <FontAwesomeIcon icon={faCalendar} className="text-muted mb-3" size="3x" />
+                  <h6 className="text-muted">No events created yet</h6>
+                  <p className="text-muted">Create your first event to get started.</p>
+                </div>
+              ) : (
+                <div className="row g-3">
+                  {events.map((event) => (
+                    <div key={event.id} className="col-12 col-md-6">
+                      <div className="card">
+                        <div className="card-body">
+                          <div className="d-flex justify-content-between align-items-start mb-2">
+                            <h6 className="card-title mb-0">{event.title}</h6>
+                            <span className={`badge ${
+                              event.status === "published" ? "bg-success" :
+                              event.status === "draft" ? "bg-warning" :
+                              event.status === "cancelled" ? "bg-danger" : "bg-secondary"
+                            }`}>
+                              {event.status}
+                            </span>
+                          </div>
+                          
+                          <p className="card-text text-muted small mb-2">
+                            {event.description || "No description"}
+                          </p>
+                          
+                          <div className="small text-muted mb-3">
+                            <div><strong>Date:</strong> {new Date(event.event_date).toLocaleString()}</div>
+                            {event.place && <div><strong>Place:</strong> {event.place}</div>}
+                            {event.organizer && <div><strong>Organizer:</strong> {event.organizer}</div>}
+                          </div>
+                          
+                          <div className="d-flex gap-2">
+                            <button
+                              className="btn btn-outline-primary btn-sm"
+                              onClick={() => handleEditEvent(event)}
+                            >
+                              <FontAwesomeIcon icon={faEye} className="me-1" />
+                              Edit
+                            </button>
+                            <button
+                              className="btn btn-outline-danger btn-sm"
+                              onClick={() => {
+                                if (confirm("Are you sure you want to delete this event?")) {
+                                  deleteEvent(event.id);
+                                }
+                              }}
+                            >
+                              <FontAwesomeIcon icon={faTrash} className="me-1" />
+                              Delete
+                            </button>
+                          </div>
+                        </div>
+                      </div>
                     </div>
-                    <button className="btn btn-outline-danger btn-sm" onClick={() => deleteEvent(e.id)}>
-                      <FontAwesomeIcon icon={faTrash} />
-                    </button>
-                  </li>
-                ))}
-              </ul>
+                  ))}
+                </div>
+              )}
             </div>
           </div>
         )}
@@ -299,6 +384,18 @@ export default function AdminPage() {
               </ul>
             </div>
           </div>
+        )}
+
+        {/* Event Modal */}
+        {showEventModal && (
+          <EventModal
+            event={editingEvent}
+            onSave={handleSaveEvent}
+            onClose={() => {
+              setShowEventModal(false);
+              setEditingEvent(null);
+            }}
+          />
         )}
       </div>
     </ProtectedRoute>
