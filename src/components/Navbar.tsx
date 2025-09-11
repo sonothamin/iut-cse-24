@@ -13,7 +13,7 @@ export default function Navbar() {
     <nav className="navbar navbar-expand-lg navbar-dark bg-dark">
       <div className="container">
         <Link href="/" className="navbar-brand">
-        <Image src="https://pugcwqebqwshamudkiqc.supabase.co/storage/v1/object/public/public_resources/175762235216906317.png" alt="IUT CSE'24" width={60} height={60} /> IUT CSE'24
+        <Image src="https://pugcwqebqwshamudkiqc.supabase.co/storage/v1/object/public/public_resources/175762235216906317.png" alt="IUT CSE&apos;24" width={60} height={60} /> IUT CSE&apos;24
         </Link>
 
         <button

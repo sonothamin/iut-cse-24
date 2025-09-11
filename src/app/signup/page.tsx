@@ -12,34 +12,68 @@ export default function SignupPage() {
   const [lastName, setLastName] = useState("");
   const [roll, setRoll] = useState("");
   const [section, setSection] = useState("");
-  const [batchYear, setBatchYear] = useState<number | "">("");
   const [sent, setSent] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
 
   async function onSubmit(e: FormEvent) {
     e.preventDefault();
     setError(null);
-    if (password !== confirm) {
-      setError("Passwords do not match");
+    setLoading(true);
+
+    // Validation
+    if (!firstName.trim()) {
+      setError("First name is required");
+      setLoading(false);
       return;
     }
-    const supabase = getSupabaseBrowserClient();
-    const { error: err } = await supabase.auth.signUp({
-      email,
-      password,
-      options: {
-        emailRedirectTo: `${window.location.origin}/auth/callback`,
-        data: {
-          first_name: firstName,
-          last_name: lastName,
-          roll,
-          section,
-          batch_year: batchYear || null,
+    if (!lastName.trim()) {
+      setError("Last name is required");
+      setLoading(false);
+      return;
+    }
+    if (!email.trim()) {
+      setError("Email is required");
+      setLoading(false);
+      return;
+    }
+    if (password.length < 6) {
+      setError("Password must be at least 6 characters");
+      setLoading(false);
+      return;
+    }
+    if (password !== confirm) {
+      setError("Passwords do not match");
+      setLoading(false);
+      return;
+    }
+
+    try {
+      const supabase = getSupabaseBrowserClient();
+      const { error: err } = await supabase.auth.signUp({
+        email: email.trim(),
+        password,
+        options: {
+          emailRedirectTo: `${window.location.origin}/auth/callback`,
+          data: {
+            first_name: firstName.trim(),
+            last_name: lastName.trim(),
+            roll: roll.trim() || null,
+            section: section.trim() || null
+          },
         },
-      },
-    });
-    if (err) setError(err.message);
-    else setSent(true);
+      });
+      
+      if (err) {
+        setError(err.message);
+      } else {
+        setSent(true);
+      }
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "An unexpected error occurred");
+    } finally {
+      setLoading(false);
+    }
   }
 
   return (
@@ -98,8 +132,15 @@ export default function SignupPage() {
             required
           />
           {error && <div className="alert alert-danger">{error}</div>}
-          <button className="btn btn-primary" type="submit">
-            Create Account
+          <button className="btn btn-primary" type="submit" disabled={loading}>
+            {loading ? (
+              <>
+                <span className="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                Creating Account...
+              </>
+            ) : (
+              "Create Account"
+            )}
           </button>
           <div className="mt-3">
             <span className="text-muted">Already have an account? </span>

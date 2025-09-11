@@ -1,20 +1,16 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import Link from "next/link";
 import AvatarImage from "@/components/AvatarImage";
 import { getSupabaseBrowserClient } from "@/lib/supabaseClient";
+import { Database } from "@/types/supabase";
 
 type Props = { params: Promise<{ identifier: string }> };
 
-type FullUser = {
-  id: string;
-  first_name: string | null;
-  last_name: string | null;
-  email: string | null;
+// Extended user type with additional fields not in the base type
+type FullUser = Database['public']['Tables']['users']['Row'] & {
   bio: string | null;
-  roll: string | null;
-  section: string | null;
-  blood_group: string | null;
   batch_year: number | null;
   avatar_url: string | null;
   github: string | null;
@@ -24,14 +20,14 @@ type FullUser = {
   twitter: string | null;
   website: string | null;
   tags: string[] | null;
-  role: "user" | "moderator" | "admin";
-  visible: boolean;
 };
 
 export default function ProfilePage({ params }: Props) {
   const supabase = useMemo(() => getSupabaseBrowserClient(), []);
   const [user, setUser] = useState<FullUser | null>(null);
   const [identifier, setIdentifier] = useState<string>("");
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     (async () => {
@@ -43,40 +39,99 @@ export default function ProfilePage({ params }: Props) {
   useEffect(() => {
     if (!identifier) return;
     (async () => {
-      let query = supabase
-        .from("users")
-        .select(`
-          id,
-          first_name,
-          last_name,
-          email,
-          bio,
-          roll,
-          section,
-          blood_group,
-          batch_year,
-          avatar_url,
-          github,
-          facebook,
-          linkedin,
-          instagram,
-          twitter,
-          website,
-          tags,
-          role,
-          visible
-        `)
-        .limit(1);
+      try {
+        setLoading(true);
+        setError(null);
 
-      if (identifier.includes("@")) query = query.eq("email", identifier);
-      else query = query.or(`id.eq.${identifier},roll.eq.${identifier}`);
+        let query = supabase
+          .from("users")
+          .select(`
+            id,
+            first_name,
+            last_name,
+            email,
+            bio,
+            roll,
+            section,
+            blood_group,
+            batch_year,
+            avatar_url,
+            github,
+            facebook,
+            linkedin,
+            instagram,
+            twitter,
+            website,
+            tags,
+            role,
+            visible
+          `)
+          .limit(1);
 
-      const { data } = await query;
-      setUser((data as any)?.[0] || null);
+        if (identifier.includes("@")) query = query.eq("email", identifier);
+        else query = query.or(`id.eq.${identifier},roll.eq.${identifier}`);
+
+        const { data, error: queryError } = await query;
+        
+        if (queryError) {
+          throw new Error(`Failed to load user: ${queryError.message}`);
+        }
+
+        const userData = data?.[0] as FullUser | undefined;
+        if (!userData) {
+          setError("User not found");
+        } else {
+          setUser(userData);
+        }
+      } catch (err) {
+        setError(err instanceof Error ? err.message : "An error occurred while loading the profile");
+      } finally {
+        setLoading(false);
+      }
     })();
   }, [identifier, supabase]);
 
-  if (!user) return <div className="d-flex mt-5 justify-content-center"><div className="spinner-border" role="status"><span className="visually-hidden">Loading...</span>  </div></div>;
+  if (loading) {
+    return (
+      <div className="container py-5">
+        <div className="d-flex justify-content-center">
+          <div className="spinner-border" role="status">
+            <span className="visually-hidden">Loading...</span>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="container py-5">
+        <div className="alert alert-danger" role="alert">
+          <h4 className="alert-heading">Error</h4>
+          <p>{error}</p>
+          <hr />
+          <p className="mb-0">
+            <Link href="/" className="btn btn-primary">Go Home</Link>
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+  if (!user) {
+    return (
+      <div className="container py-5">
+        <div className="alert alert-warning" role="alert">
+          <h4 className="alert-heading">User Not Found</h4>
+          <p>The requested user profile could not be found.</p>
+          <hr />
+          <p className="mb-0">
+            <Link href="/" className="btn btn-primary">Go Home</Link>
+          </p>
+        </div>
+      </div>
+    );
+  }
 
   const socialLinks = [
     { icon: "fa-github", url: user.github, label: "GitHub" },
@@ -84,8 +139,8 @@ export default function ProfilePage({ params }: Props) {
     { icon: "fa-facebook", url: user.facebook, label: "Facebook" },
     { icon: "fa-instagram", url: user.instagram, label: "Instagram" },
     { icon: "fa-x-twitter", url: user.twitter, label: "Twitter/X" },
-    { icon: "fa fa-globe", url: user.website, label: "Website" },
-  ];
+    { icon: "fa-globe", url: user.website, label: "Website" },
+  ].filter(link => link.url && link.url.trim() !== "");
 
   return (
     <div className="container py-5">
@@ -110,15 +165,15 @@ export default function ProfilePage({ params }: Props) {
               </span>
             </div>
 
-            <div className="d-flex justify-content-center gap-3 mt-3">
-              {socialLinks.map((s) =>
-                s.url ? (
-                  <a key={s.label} href={s.url} target="_blank" rel="noreferrer" title={s.label}>
+            {socialLinks.length > 0 && (
+              <div className="d-flex justify-content-center gap-3 mt-3">
+                {socialLinks.map((s) => (
+                  <a key={s.label} href={s.url!} target="_blank" rel="noreferrer" title={s.label}>
                     <i className={`fa-brands ${s.icon} fs-5`} />
                   </a>
-                ) : null
-              )}
-            </div>
+                ))}
+              </div>
+            )}
           </div>
         </div>
 
