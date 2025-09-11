@@ -3,8 +3,6 @@
 import ProtectedRoute from "@/components/ProtectedRoute";
 import { useEffect, useMemo, useState } from "react";
 import { getSupabaseBrowserClient } from "@/lib/supabaseClient";
-import { FontAwesomeIcon } from "@fontawesome/react-fontawesome";
-import { faPlus, faTrash, faEye, faEyeSlash, faCalendar } from "@fortawesome/free-solid-svg-icons";
 import { Database } from "@/types/supabase";
 import EventModal from "@/components/EventModal";
 
@@ -261,12 +259,12 @@ export default function AdminPage() {
                             className="btn btn-sm btn-outline-secondary"
                             onClick={() => setUserVisible(u.id, !u.visible)}
                           >
-                            <FontAwesomeIcon icon={u.visible ? faEye : faEyeSlash} />
+                            <i className={`fa-solid fa-${u.visible ? 'eye' : 'eye-slash'}`}></i>
                           </button>
                         </td>
                         <td>
                           <a className="btn btn-sm btn-outline-primary" href={`/profile/${u.id}`}>
-                            <FontAwesomeIcon icon={faEye} /> View
+                            <i className="fa-solid fa-eye"></i> View
                           </a>
                         </td>
                       </tr>
@@ -287,14 +285,14 @@ export default function AdminPage() {
                   className="btn btn-primary btn-sm"
                   onClick={handleCreateEvent}
                 >
-                  <FontAwesomeIcon icon={faPlus} className="me-2" />
+                  <i className="fa-solid fa-plus me-2"></i>
                   Create Event
                 </button>
               </div>
               
               {events.length === 0 ? (
                 <div className="text-center py-4">
-                  <FontAwesomeIcon icon={faCalendar} className="text-muted mb-3" size="3x" />
+                  <i className="fa-solid fa-calendar text-muted mb-3" style={{fontSize: '3rem'}}></i>
                   <h6 className="text-muted">No events created yet</h6>
                   <p className="text-muted">Create your first event to get started.</p>
                 </div>
@@ -330,7 +328,7 @@ export default function AdminPage() {
                               className="btn btn-outline-primary btn-sm"
                               onClick={() => handleEditEvent(event)}
                             >
-                              <FontAwesomeIcon icon={faEye} className="me-1" />
+                              <i className="fa-solid fa-eye me-1"></i>
                               Edit
                             </button>
                             <button
@@ -341,7 +339,7 @@ export default function AdminPage() {
                                 }
                               }}
                             >
-                              <FontAwesomeIcon icon={faTrash} className="me-1" />
+                              <i className="fa-solid fa-trash me-1"></i>
                               Delete
                             </button>
                           </div>
@@ -367,7 +365,7 @@ export default function AdminPage() {
                   createNotice(title.trim());
                 }}
               >
-                <FontAwesomeIcon icon={faPlus} /> New Notice
+                <i className="fa-solid fa-plus"></i> New Notice
               </button>
               <ul className="list-group">
                 {notices.map((n) => (
@@ -377,7 +375,7 @@ export default function AdminPage() {
                       <div className="small text-muted">{n.notice_date ? new Date(n.notice_date).toLocaleString() : ""}</div>
                     </div>
                     <button className="btn btn-outline-danger btn-sm" onClick={() => deleteNotice(n.id)}>
-                      <FontAwesomeIcon icon={faTrash} />
+                      <i className="fa-solid fa-trash"></i>
                     </button>
                   </li>
                 ))}

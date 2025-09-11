@@ -3,8 +3,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { getSupabaseBrowserClient } from "@/lib/supabaseClient";
 import { Database } from "@/types/supabase";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faCalendar, faMapMarkerAlt, faUser, faClock, faUsers, faFileAlt, faPaperclip } from "@fortawesome/free-solid-svg-icons";
 import ProtectedRoute from "@/components/ProtectedRoute";
 
 type Event = Database['public']['Tables']['events']['Row'];
@@ -141,7 +139,7 @@ export default function EventsPage() {
         {filteredEvents.length === 0 ? (
           <div className="card">
             <div className="card-body text-center py-5">
-              <FontAwesomeIcon icon={faCalendar} className="text-muted mb-3" size="3x" />
+              <i className="fa-solid fa-calendar text-muted mb-3" style={{fontSize: '3rem'}}></i>
               <h5 className="text-muted">No events found</h5>
               <p className="text-muted">No events match your current filter.</p>
             </div>
@@ -177,34 +175,34 @@ export default function EventsPage() {
 
                     <div className="mb-3">
                       <div className="d-flex align-items-center mb-1">
-                        <FontAwesomeIcon icon={faCalendar} className="text-primary me-2" />
+                        <i className="fa-solid fa-calendar text-primary me-2"></i>
                         <small>{formatDate(event.event_date)}</small>
                       </div>
                       
                       {event.end_date && (
                         <div className="d-flex align-items-center mb-1">
-                          <FontAwesomeIcon icon={faClock} className="text-primary me-2" />
+                          <i className="fa-solid fa-clock text-primary me-2"></i>
                           <small>Ends: {formatTime(event.end_date)}</small>
                         </div>
                       )}
 
                       {event.place && (
                         <div className="d-flex align-items-center mb-1">
-                          <FontAwesomeIcon icon={faMapMarkerAlt} className="text-primary me-2" />
+                          <i className="fa-solid fa-map-marker-alt text-primary me-2"></i>
                           <small>{event.place}</small>
                         </div>
                       )}
 
                       {event.organizer && (
                         <div className="d-flex align-items-center mb-1">
-                          <FontAwesomeIcon icon={faUser} className="text-primary me-2" />
+                          <i className="fa-solid fa-user text-primary me-2"></i>
                           <small>{event.organizer}</small>
                         </div>
                       )}
 
                       {event.max_participants && (
                         <div className="d-flex align-items-center mb-1">
-                          <FontAwesomeIcon icon={faUsers} className="text-primary me-2" />
+                          <i className="fa-solid fa-users text-primary me-2"></i>
                           <small>Max {event.max_participants} participants</small>
                         </div>
                       )}
@@ -213,7 +211,7 @@ export default function EventsPage() {
                     {(event.resources && event.resources.length > 0) && (
                       <div className="mb-3">
                         <small className="text-muted">
-                          <FontAwesomeIcon icon={faFileAlt} className="me-1" />
+                          <i className="fa-solid fa-file-alt me-1"></i>
                           Resources: {event.resources.length}
                         </small>
                       </div>
@@ -222,7 +220,7 @@ export default function EventsPage() {
                     {(event.attachments && event.attachments.length > 0) && (
                       <div className="mb-3">
                         <small className="text-muted">
-                          <FontAwesomeIcon icon={faPaperclip} className="me-1" />
+                          <i className="fa-solid fa-paperclip me-1"></i>
                           Attachments: {event.attachments.length}
                         </small>
                       </div>

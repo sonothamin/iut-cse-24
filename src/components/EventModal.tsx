@@ -2,8 +2,6 @@
 
 import { useState, useEffect } from "react";
 import { Database } from "@/types/supabase";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faTimes, faPlus, faTrash } from "@fortawesome/free-solid-svg-icons";
 
 type Event = Database['public']['Tables']['events']['Row'];
 type EventInsert = Database['public']['Tables']['events']['Insert'];
@@ -117,7 +115,9 @@ export default function EventModal({ event, onSave, onClose }: Props) {
               className="btn-close"
               onClick={onClose}
               aria-label="Close"
-            />
+            >
+              <i className="fa-solid fa-times"></i>
+            </button>
           </div>
 
           <form onSubmit={handleSubmit}>
