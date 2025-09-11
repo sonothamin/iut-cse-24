@@ -1,23 +1,28 @@
 "use client";
 
 import { useEffect } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { getSupabaseBrowserClient } from "@/lib/supabaseClient";
 
 export default function AuthCallbackPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
 
   useEffect(() => {
     (async () => {
       const supabase = getSupabaseBrowserClient();
-      // Handles magic-link and OAuth PKCE code exchange
-      await supabase.auth.exchangeCodeForSession();
+      const code = searchParams.get("code"); // <- PKCE / OAuth code
+
+      if (code) {
+        await supabase.auth.exchangeCodeForSession(code);
+      }
+
       // After session is set, go to home
       setTimeout(() => {
         router.replace("/");
       }, 200);
     })();
-  }, [router]);
+  }, [router, searchParams]);
 
   return (
     <div className="container py-5">
@@ -25,5 +30,3 @@ export default function AuthCallbackPage() {
     </div>
   );
 }
-
-

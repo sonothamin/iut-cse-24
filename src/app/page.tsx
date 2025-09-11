@@ -6,7 +6,7 @@ export default function HomePage() {
     <main className="container py-5">
       <section className="row align-items-center g-5" style={{ minHeight: "calc(100vh - 56px)" }}>
         <div className="col-12 col-lg-6">
-          <h2>Hello, IUT CSE'24</h2>
+        <h2>Hello, IUT CSE&apos;24</h2>
           <h1 className="display-5 fw-bold text-body-emphasis lh-1 mb-3">This is Home</h1>
           <p className="lead">
             Here we gather to connect, to share and to grow. To showcase our joys and sorrows,
@@ -18,7 +18,7 @@ export default function HomePage() {
           </div>
         </div>
         <div className="col-12 col-lg-6 text-center">
-          <Image src="https://pugcwqebqwshamudkiqc.supabase.co/storage/v1/object/public/public_resources/175739296895993716-removebg-preview%20(2).png" alt="IUT CSE'24" width={500} height={500} />
+          <Image src="https://pugcwqebqwshamudkiqc.supabase.co/storage/v1/object/public/public_resources/175739296895993716-removebg-preview%20(2).png" alt="IUT CSE-24" width={500} height={500} />
         </div>
       </section>
     </main>

@@ -2,7 +2,7 @@
 
 import { useEffect, useState, FormEvent } from "react";
 import { getSupabaseBrowserClient } from "@/lib/supabaseClient";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 
 export default function ResetConfirmPage() {
   const [password, setPassword] = useState("");
@@ -10,15 +10,20 @@ export default function ResetConfirmPage() {
   const [error, setError] = useState<string | null>(null);
   const [ready, setReady] = useState(false);
   const router = useRouter();
+  const searchParams = useSearchParams();
 
   useEffect(() => {
-    // When arriving from email, Supabase provides a session we need to initialize
     (async () => {
       const supabase = getSupabaseBrowserClient();
-      await supabase.auth.exchangeCodeForSession();
+      const code = searchParams.get("code") || searchParams.get("access_token");
+
+      if (code) {
+        await supabase.auth.exchangeCodeForSession(code);
+      }
+
       setReady(true);
     })();
-  }, []);
+  }, [searchParams]);
 
   async function onSubmit(e: FormEvent) {
     e.preventDefault();
@@ -63,5 +68,3 @@ export default function ResetConfirmPage() {
     </div>
   );
 }
-
-
