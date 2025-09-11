@@ -5,7 +5,6 @@ import { useSearchParams } from "next/navigation";
 
 function CallbackContent() {
   const searchParams = useSearchParams();
-  // ...your logic using searchParams...
   return <div className="container py-5">
       <div className="alert alert-info">Finishing sign-in...</div>
     </div>;
