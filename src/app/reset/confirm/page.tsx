@@ -1,10 +1,10 @@
 "use client";
 
-import { useEffect, useState, FormEvent } from "react";
+import { useEffect, useState, FormEvent, Suspense } from "react";
 import { getSupabaseBrowserClient } from "@/lib/supabaseClient";
 import { useRouter, useSearchParams } from "next/navigation";
 
-export default function ResetConfirmPage() {
+function ResetConfirmForm() {
   const [password, setPassword] = useState("");
   const [confirm, setConfirm] = useState("");
   const [error, setError] = useState<string | null>(null);
@@ -66,5 +66,13 @@ export default function ResetConfirmPage() {
         <button className="btn btn-primary" type="submit">Update password</button>
       </form>
     </div>
+  );
+}
+
+export default function ResetConfirmPage() {
+  return (
+    <Suspense fallback={<div className="container py-5">Loading...</div>}>
+      <ResetConfirmForm />
+    </Suspense>
   );
 }
