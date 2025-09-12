@@ -12,8 +12,9 @@ export default function ResetRequestPage() {
     e.preventDefault();
     setError(null);
     const supabase = getSupabaseBrowserClient();
+    const redirectTo = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000"; 
     const { error: err } = await supabase.auth.resetPasswordForEmail(email, {
-      redirectTo: `${window.location.origin}/reset/confirm`,
+      redirectTo: `${redirectTo}/reset/confirm`,
     });
     if (err) setError(err.message);
     else setSent(true);
@@ -42,5 +43,6 @@ export default function ResetRequestPage() {
     </div>
   );
 }
+
 
 
