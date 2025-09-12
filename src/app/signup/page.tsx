@@ -50,11 +50,12 @@ export default function SignupPage() {
 
     try {
       const supabase = getSupabaseBrowserClient();
+      const redirectTo = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000"; 
       const { error: err } = await supabase.auth.signUp({
         email: email.trim(),
         password,
         options: {
-          emailRedirectTo: `${window.location.origin}/auth/callback`,
+          emailRedirectTo: `${redirectTo}/auth/callback`,
           data: {
             first_name: firstName.trim(),
             last_name: lastName.trim(),
@@ -151,5 +152,6 @@ export default function SignupPage() {
     </div>
   );
 }
+
 
 
