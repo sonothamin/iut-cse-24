@@ -3,7 +3,7 @@
 📘 IUT CSE’24 Community Platform
 
 A student-built platform for the IUT CSE Batch of 2024.
-The goal is simple: bring everyone together in one place — to connect, share, and showcase our journey at IUT.
+The goal is simple: bring everyone together in one place, to connect, share, and showcase our journey at IUT.
 
 This isn’t just another web app; it’s our own community hub, designed with modern tools and a clean interface.
 
